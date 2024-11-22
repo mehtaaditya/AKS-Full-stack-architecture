@@ -1,4 +1,4 @@
-name: Retrieve Key Vault Secret
+name: Deploy to AKS
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  fetch-secret:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,19 +18,28 @@ jobs:
         with:
           creds: ${{ secrets.CREDENTIAL1 }}
 
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Get AKS Credentials
+        run: |
+               az aks get-credentials --resource-group AKS --name myAKSCluster
+
       - name: Retrieve Secret from Key Vault
         id: get-secret
         run: |
-          SECRET_VALUE=$(az keyvault secret show --name servicebus --vault-name vault1019 --query value -o tsv)
-          echo $SECRET_VALUE > secret-value.txt
+              SECRET_VALUE=$(az keyvault secret show --name servicebus --vault-name vault1019 --query value -o tsv)
+              echo "Retrieved secret from Azure Key Vault."
 
       - name: Create Kubernetes Secret
         run: |
           kubectl create secret generic order-queue-secret \
-            --from-literal=ORDER_QUEUE_PASSWORD=$(cat secret-value.txt) \
-            --namespace=default --dry-run=client -o yaml > secret.yaml
-          kubectl apply -f secret.yaml
+            --from-literal=ORDER_QUEUE_PASSWORD="$SECRET_VALUE" \
+            --namespace=default --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Deploy Kubernetes Resources
         run: |
           kubectl apply -f k8s/deployment.yaml
+
