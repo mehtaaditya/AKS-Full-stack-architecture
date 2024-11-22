@@ -35,7 +35,9 @@ jobs:
       - name: Retrieve Secret from Key Vault
         id: get-secret
         run: |
-         SECRET_VALUE=$(az keyvault secret show --name servicebus --vault-name vault1019 --query value -o tsv) echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV echo "Retrieved secret from Azure Key Vault."
+         SECRET_VALUE=$(az keyvault secret show --name servicebus --vault-name vault1019 --query value -o tsv) 
+         echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV
+         echo "Retrieved secret from Azure Key Vault."
 
       - name: Delete Existing Kubernetes Secret (if exists)
         run: |
