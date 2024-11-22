@@ -30,14 +30,24 @@ jobs:
                
       - name: Delete old namespace
         run:  |
-                kubectl delete all --all -n default
+               kubectl delete all --all -n default
 
-      - name: Retrieve Secret from Key Vault
-        id: get-secret
+      - name: Get secret
         run: |
-         SECRET_VALUE=$(az keyvault secret show --name servicebus --vault-name vault1019 --query value -o tsv) 
-         echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV
-         echo "Retrieved secret from Azure Key Vault."
+          SECRET_VALUE=$(az keyvault secret show --name servicebus --vault-name vault1019 --query value -o tsv)
+  
+          # Check if SECRET_VALUE is empty
+          if [ -z "$SECRET_VALUE" ]; then
+          echo "Error: Failed to retrieve the secret or the secret is empty."
+          exit 1
+          fi
+
+          # Output the secret value to GitHub Actions environment
+          echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV
+
+          # Inform about the success
+          echo "Retrieved secret from Azure Key Vault successfully."
+
 
       - name: Delete Existing Kubernetes Secret (if exists)
         run: |
