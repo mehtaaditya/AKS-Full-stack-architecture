@@ -56,7 +56,7 @@ jobs:
         run: |
           kubectl apply -f aks-store-quickstart.yaml
 
-      - name: Deploy Kubernetes Resources
+      - name: show password
         run: |
               echo "<BASE64_VALUE>" | base64 --decode
               
