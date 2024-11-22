@@ -17,6 +17,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.CREDENTIAL1 }}
+                
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
@@ -26,6 +27,10 @@ jobs:
       - name: Get AKS Credentials
         run: |
                az aks get-credentials --resource-group AKS --name myAKSCluster
+               
+      - name: Delete old namespace
+        run:  |
+                kubectl delete all --all -n default
 
       - name: Retrieve Secret from Key Vault
         id: get-secret
