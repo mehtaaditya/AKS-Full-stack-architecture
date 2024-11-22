@@ -1,0 +1,30 @@
+name: Retrieve Key Vault Secret
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  fetch-secret:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.CREDENTIAL1 }}
+
+      - name: Retrieve Secret from Key Vault
+        id: get-secret
+        run: |
+          SECRET_VALUE=$(az keyvault secret show --name servicebus --vault-name vault1019 --query value -o tsv)
+          echo "ORDER_QUEUE_PASSWORD=$ORDER_QUEUE_PASSWORD" >> $GITHUB_ENV
+
+      - name: Use Secret in YAML
+        run: |
+          echo "Your secret value is ${{ env.SECRET_VALUE }}"
+
