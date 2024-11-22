@@ -22,7 +22,7 @@ jobs:
         id: get-secret
         run: |
           SECRET_VALUE=$(az keyvault secret show --name servicebus --vault-name vault1019 --query value -o tsv)
-          echo "ORDER_QUEUE_PASSWORD=$ORDER_QUEUE_PASSWORD" >> $GITHUB_ENV
+          echo "ORDER_QUEUE_PASSWORD=$SECRET_VALUE" >> $GITHUB_ENV
 
       - name: Use Secret in YAML
         run: |
