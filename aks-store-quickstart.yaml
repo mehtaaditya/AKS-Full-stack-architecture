@@ -29,7 +29,10 @@ spec:
         - name: ORDER_QUEUE_USERNAME
           value: "sender"
         - name: ORDER_QUEUE_PASSWORD
-          value: ${{ env.SECRET_VALUE }}
+              valueFrom:
+                secretKeyRef:
+                  name: order-queue-secret
+                  key: ORDER_QUEUE_PASSWORD
         - name: ORDER_QUEUE_NAME
           value: "orders"
         - name: FASTIFY_ADDRESS
