@@ -41,5 +41,5 @@ jobs:
 
       - name: Deploy Kubernetes Resources
         run: |
-          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f aks-store-quickstart.yaml
 
