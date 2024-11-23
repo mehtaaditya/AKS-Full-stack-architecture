@@ -44,42 +44,42 @@ jobs:
 
       - name: Push front
         run: |
-          docker tag aks-store-demo-store-front acr777aditya.azurecr.io/aks-store-demo-store-front 
+          docker tag aks-full-stack-architecture-store-front acr777aditya.azurecr.io/aks-store-demo-store-front 
           docker push acr777aditya.azurecr.io/aks-store-demo-store-front
 
       
       - name: Push product-service
         run: |
-          docker tag aks-store-demo-product-service acr777aditya.azurecr.io/aks-store-demo-product-service
+          docker tag aks-full-stack-architecture-product-service acr777aditya.azurecr.io/aks-store-demo-product-service
           docker push acr777aditya.azurecr.io/aks-store-demo-product-service
 
           
       
       - name: Push order-service
         run: |
-          docker tag aks-store-demo-order-service acr777aditya.azurecr.io/aks-store-demo-order-service
+          docker tag aks-full-stack-architecture-order-service acr777aditya.azurecr.io/aks-store-demo-order-service
           docker push acr777aditya.azurecr.io/aks-store-demo-order-service
 
-      - name: Push virtual-worker
-        run: |
-          docker tag aks-store-demo-virtual-worker acr777aditya.azurecr.io/aks-store-demo-virtual-worker
-          docker push acr777aditya.azurecr.io/aks-store-demo-virtual-worker
+      #- name: Push virtual-worker
+       # run: |
+        #  docker tag aks-store-demo-virtual-worker acr777aditya.azurecr.io/aks-store-demo-virtual-worker
+         # docker push acr777aditya.azurecr.io/aks-store-demo-virtual-worker
 
 
 
-      - name: Push virtual-customer
-        run: |
-          docker tag aks-store-demo-virtual-customer acr777aditya.azurecr.io/aks-store-demo-virtual-customer
-          docker push acr777aditya.azurecr.io/aks-store-demo-virtual-customer
+      #- name: Push virtual-customer
+       # run: |
+        #  docker tag aks-store-demo-virtual-customer acr777aditya.azurecr.io/aks-store-demo-virtual-customer
+         # docker push acr777aditya.azurecr.io/aks-store-demo-virtual-customer
 
 
 
 
 
-      - name: Push makeline-service
-        run: |
-          docker tag aks-store-demo-makeline-service acr777aditya.azurecr.io/aks-store-demo-makeline-service
-          docker push acr777aditya.azurecr.io/aks-store-demo-makeline-service
+     # - name: Push makeline-service
+     #   run: |
+     #     docker tag aks-store-demo-makeline-service acr777aditya.azurecr.io/aks-store-demo-makeline-service
+     #     docker push acr777aditya.azurecr.io/aks-store-demo-makeline-service
 
 
 
@@ -94,17 +94,17 @@ jobs:
 
 
 
-      - name: Push Mongo
-        run: |
-              docker tag mongo:6.0.6 acr777aditya.azurecr.io/mongo:6.0.6
-              docker push acr777aditya.azurecr.io/mongo:6.0.6
+     # - name: Push Mongo
+     #   run: |
+      #        docker tag mongo:6.0.6 acr777aditya.azurecr.io/mongo:6.0.6
+       #       docker push acr777aditya.azurecr.io/mongo:6.0.6
 
 
 
-      - name: Push store-admin
-        run: |
-             docker tag aks-store-demo-store-admin acr777aditya.azurecr.io/aks-store-demo-store-admin
-             docker push acr777aditya.azurecr.io/aks-store-demo-store-admin
+     # - name: Push store-admin
+     #   run: |
+       #      docker tag aks-store-demo-store-admin acr777aditya.azurecr.io/aks-store-demo-store-admin
+       #      docker push acr777aditya.azurecr.io/aks-store-demo-store-admin
 
 
     
