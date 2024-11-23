@@ -1,3 +1,4 @@
+name: Docker compose and push to ACR
 on:
   push:
     branches:
