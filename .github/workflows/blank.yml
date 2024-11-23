@@ -6,7 +6,7 @@ on:
       - main
 
     paths:
-      - 'aks-store-quickstart.yaml' 
+      - aks-store-quickstart.yaml
 
 jobs:
   deploy:
