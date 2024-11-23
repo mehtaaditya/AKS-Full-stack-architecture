@@ -28,4 +28,34 @@ jobs:
         run: |
           docker compose -f docker-compose-quickstart.yml up -d
 
+        
+      # See Docker images
+      - name: See Docker Image
+        run: |
+          docker images
+
+       # See image running
+      - name: See Running Docker Image
+        run: |
+          docker ps
+
+
+
+      - name: Push front
+        run: |
+          docker tag aks-store-demo-store-front acr777aditya.azurecr.io/aks-store-demo-store-front \
+          docker push acr777aditya.azurecr.io/aks-store-demo-store-front
+
+      
+      - name: Push product-service
+        run: |
+          docker tag aks-store-demo-product-service acr777aditya.azurecr.io/aks-store-demo-product-service
+          docker push acr777aditya.azurecr.io/aks-store-demo-product-service
+
+          
+      
+      - name: Push order-service
+        run: |
+          docker tag aks-store-demo-order-service acr777aditya.azurecr.io/aks-store-demo-order-service
+          docker push acr777aditya.azurecr.io/aks-store-demo-order-service
     
