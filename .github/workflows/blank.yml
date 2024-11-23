@@ -2,8 +2,8 @@ name: Deploy to AKS
 
 on:
   push:
-    branches:
-      - main
+    #branches:
+    #  - main
 
     paths:
       - 'aks-store-quickstart.yaml'
