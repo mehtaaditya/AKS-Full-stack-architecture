@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+    paths:
+      - 'aks-store-quickstart.yaml' 
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -17,6 +20,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.CREDENTIAL1 }}
+                
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
@@ -26,20 +30,50 @@ jobs:
       - name: Get AKS Credentials
         run: |
                az aks get-credentials --resource-group AKS --name myAKSCluster
+               
+      - name: Delete old namespace
+        run:  |
+               kubectl delete all --all -n default
 
-      - name: Retrieve Secret from Key Vault
-        id: get-secret
+      - name: Get secret
         run: |
-              SECRET_VALUE=$(az keyvault secret show --name servicebus --vault-name vault1019 --query value -o tsv)
-              echo "Retrieved secret from Azure Key Vault."
+          SECRET_VALUE=$(az keyvault secret show --name servicebus --vault-name vault1019 --query value -o tsv)
+  
+          # Check if SECRET_VALUE is empty
+          if [ -z "$SECRET_VALUE" ]; then
+          echo "Error: Failed to retrieve the secret or the secret is empty."
+          exit 1
+          fi
+
+          # Output the secret value to GitHub Actions environment
+          echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV
+
+          # Inform about the success
+          echo "Retrieved secret from Azure Key Vault successfully."
+
+
+      - name: Delete Existing Kubernetes Secret (if exists)
+        run: |
+            kubectl delete secret order-queue-secret --ignore-not-found
+
 
       - name: Create Kubernetes Secret
         run: |
           kubectl create secret generic order-queue-secret \
-            --from-literal=ORDER_QUEUE_PASSWORD="$SECRET_VALUE" \
-            --namespace=default --dry-run=client -o yaml | kubectl apply -f -
+            --from-literal=ORDER_QUEUE_PASSWORD="${{ env.SECRET_VALUE }}"
+
+      - name: View the Encoded Secret 
+        run: |
+          kubectl get secret order-queue-secret -o yaml
+
 
       - name: Deploy Kubernetes Resources
         run: |
           kubectl apply -f aks-store-quickstart.yaml
+              
+
+      - name: Debug Environment
+        run: |
+          echo "Secret: ${{ env.SECRET_VALUE }}"
+    
 
