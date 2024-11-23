@@ -67,10 +67,6 @@ jobs:
       - name: Deploy Kubernetes Resources
         run: |
           kubectl apply -f aks-store-quickstart.yaml
-
-      - name: show password
-        run: |
-              echo "<BASE64_VALUE>" | base64 --decode
               
 
       - name: Debug Environment
