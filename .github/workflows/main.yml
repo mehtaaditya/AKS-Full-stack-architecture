@@ -4,7 +4,7 @@ on:
     branches:
       - main
   #  path:
-  #    - 'docker-compose-quickstart.yml"
+  #    - 'docker-compose-quickstart.yml'
 
 jobs:
   deploy:
@@ -27,7 +27,7 @@ jobs:
       # Build Docker image
       - name: Build Docker Image
         run: |
-          docker compose -f docker-quickstart.yml up -d
+          docker compose -f docker-compose-quickstart.yml up -d
 
         
       # See Docker images
