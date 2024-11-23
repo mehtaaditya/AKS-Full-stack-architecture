@@ -21,7 +21,7 @@ spec:
         - containerPort: 3000
         env:
         - name: ORDER_QUEUE_HOSTNAME
-          value: "sbus666.servicebus.windows.net" # Example: sb-store-demo-123456.servicebus.windows.net
+          value: "sbus666.servicebus.windows.net" # Example: sb-store-demo-123456.servicebus.windows.net socc
         - name: ORDER_QUEUE_PORT
           value: "5671"
         - name: ORDER_QUEUE_TRANSPORT
