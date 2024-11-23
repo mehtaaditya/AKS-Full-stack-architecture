@@ -5,8 +5,8 @@ on:
     branches:
       - main
 
-    paths:
-      - aks-store-quickstart.yaml
+    #paths:
+     # - aks-store-quickstart.yaml
 
 jobs:
   deploy:
