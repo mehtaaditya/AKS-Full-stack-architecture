@@ -210,7 +210,7 @@ spec:
       containers:
       - name: store-front
         image: acr777aditya.azurecr.io/aks-store-demo-store-front
-        #ghcr.io/azure-samples/aks-store-demo/store-front:latest
+        #ghcr.io/azure-samples/aks-store-demo/store-front:latest   this is comment
         ports:
         - containerPort: 8080
           name: store-front
