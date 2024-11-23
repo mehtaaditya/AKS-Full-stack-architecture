@@ -87,6 +87,10 @@ jobs:
           fi
           sleep 2
           done
+          echo "$IP"
+          echo "$IP"
+          echo "$IP"
+          
 
     
 
