@@ -21,8 +21,7 @@ jobs:
       # Docker Login to ACR
       - name: Docker Login to ACR
         run: |
-          az acr login --name acr777aditya
-        #  ${{ vars.REGISTRY_NAME }} --RG acrrr
+          az acr login --name ${{ vars.REGISTRY_NAME }}
 
       # Build Docker image
       - name: Build Docker Image
