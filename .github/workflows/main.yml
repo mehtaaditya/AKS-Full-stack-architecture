@@ -1,0 +1,29 @@
+on:
+  push:
+    branches:
+      - main/docker-compose-quickstart.yml
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.CREDENTIAL1 }}
+
+      # Docker Login to ACR
+      - name: Docker Login to ACR
+        run: |
+          az acr login --name ${{ vars.REGISTRY_NAME }}
+
+      # Build Docker image
+      - name: Build Docker Image
+        run: |
+          docker compose -f docker-compose-quickstart.yml up -d
+
+    
