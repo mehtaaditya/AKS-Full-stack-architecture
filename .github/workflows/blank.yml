@@ -77,5 +77,16 @@ jobs:
       - name: Debug Environment
         run: |
           echo "Secret: ${{ env.SECRET_VALUE }}"
+
+
+          while true; 
+          do IP=$(kubectl get service store-front -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+          if [ -n "$IP" ]; then
+          echo "$IP"
+          break
+          fi
+          sleep 2
+          done
+
     
 
