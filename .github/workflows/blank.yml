@@ -7,6 +7,8 @@ on:
 
     paths:
       - 'aks-store-quickstart.yaml'
+      - 'docker-compose.yml'
+      - 'docker-compose-quickstart.yml'
 
 jobs:
   deploy:
