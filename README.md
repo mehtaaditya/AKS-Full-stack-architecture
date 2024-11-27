@@ -1,148 +1,96 @@
----
-page_type: sample
-languages:
-- azdeveloper
-- go
-- javascript
-- rust
-- nodejs
-- python
-- bicep
-- terraform
-- dockerfile
-products:
-- azure
-- azure-kubernetes-service
-- azure-openai
-- azure-cosmos-db
-- azure-container-registry
-- azure-service-bus
-- azure-monitor
-- azure-log-analytics
-- azure-managed-grafana
-- azure-key-vault
-urlFragment: aks-store-demo
-name: AKS Store Demo
-description: This sample demo app consists of a group of containerized microservices that can be easily deployed into an Azure Kubernetes Service (AKS) cluster. 
----
-<!-- YAML front-matter schema: https://review.learn.microsoft.com/en-us/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
+#This is not a step-by-step deployment. Project is still improving and lot of new features such as agro rollout, more testing piplelines will be integrated soon and some features will be removed. If the site is down that means that i might be working on it. You are welcome to checkout the github repo.
 
-# AKS Store Demo
+LINK TO GITHUB: https://github.com/mehtaaditya/AKS-Full-stack-architecture
 
-This sample demo app consists of a group of containerized microservices that can be easily deployed into an Azure Kubernetes Service (AKS) cluster. This is meant to show a realistic scenario using a polyglot architecture, event-driven design, and common open source back-end services (eg - RabbitMQ, MongoDB). The application also leverages OpenAI's GPT-3 models to generate product descriptions. This can be done using either [Azure OpenAI](https://learn.microsoft.com/azure/ai-services/openai/overview) or [OpenAI](https://openai.com/).
+LINK TO SITE: store-front(http for now)
 
-This application is inspired by another demo app called [Red Dog](https://github.com/Azure/reddog-code).
+This site leverages all important Devops tools needed to accomplish a full stack deployment from coding to containerization, testing, deployment and monitoring. The project follows the principle of CI/CD, continuous testing, continuous monitoring and Finops principle
 
-> [!NOTE]
-> This is not meant to be an example of perfect code to be used in production, but more about showing a realistic application running in AKS. 
+Services extensively used are Azure Kubernetes cluster, Azure service bus, Docker Desktop, Helm, Github Actions, Selenuim, Azure load test, Azure key vault , Azure Devops , Azure VM, Prometheus, Grafana and more.
 
-<!-- 
-To walk through a quick deployment of this application, see the [AKS Quickstart](https://learn.microsoft.com/azure/aks/learn/quick-kubernetes-deploy-cli).
 
-To walk through a complete experience where this code is packaged into container images, uploaded to Azure Container Registry, and then run in and AKS cluster, see the [AKS Tutorials](https://learn.microsoft.com/azure/aks/tutorial-kubernetes-prepare-app).
+How the complete workflow works: -
 
- -->
+1. As soon as new commit is created in the GitHub repo by the developer, the Docker images are composed on the GitHub runner and pushed to ACR(Deployed Beforehand) in the cloud using GitHub actions workflow files.
 
-## Architecture
+2. And then the second GitHub Actions runs, and deployment takes place in the AKS cluster which is previously deployed
 
-The application has the following services: 
+3. Also, the deployment depends on the which file the commit is done to. If the commit is done to the Docker file or the development code folder, the whole workflow including 1 and 2 takes place.
 
-| Service | Description |
-| --- | --- |
-| `makeline-service` | This service handles processing orders from the queue and completing them (Golang) |
-| `order-service` | This service is used for placing orders (Javascript) |
-| `product-service` | This service is used to perform CRUD operations on products (Rust) |
-| `store-front` | Web app for customers to place orders (Vue.js) |
-| `store-admin` | Web app used by store employees to view orders in queue and manage products (Vue.js) | 
-| `virtual-customer` | Simulates order creation on a scheduled basis (Rust) |
-| `virtual-worker` | Simulates order completion on a scheduled basis (Rust) |
-| `ai-service` | Optional service for adding generative text and graphics creation (Python) |
-| `mongodb` | MongoDB instance for persisted data |
-| `rabbitmq` | RabbitMQ for an order queue |
+4. If the commit is only done to AKS files(manifest) which include CPU usage, images used, credential used etc, then only the 2nd workflow takes place and not triggered on the main branch commit.
 
-![Logical Application Architecture Diagram](assets/demo-arch-with-openai.png)
+5. A service bus which I already deployed for storing the orders from the customers is also used in the manifest files (GithubAction 2) using the key vault secret for service bus password in the AKS yaml mainfest. This way passwords are never stored in plain text. Passwords are not even stored in GitHub secrets variable(other than az login credentials). Azure key vault provides way better security and accountability. AKS secrets feature alone could also be used here.Also GPG key for github used in the commits makes sure that code commits are valid and verified.
 
-## Run the app on Azure Kubernetes Service (AKS)
+6. A service principal is used to login to azure and only the appropriate permissions are added to the SP for the AKS deployment using Kubernetes RBAC.
 
-To learn how to deploy this app on AKS, see [Quickstart: Deploy an Azure Kubernetes Service (AKS) cluster using Azure CLI](https://learn.microsoft.com/azure/aks/learn/quick-kubernetes-deploy-cli).
+7. The 2nd GitHub action has a trigger for Azure Devops pipeline in the end which triggers it after deploying to AKS and consequently the testing phase of the deployment begins.
 
-> [!NOTE]
-> The above article shows a simplified version of the store app with some services removed. For the full application, you can use the `aks-store-all-in-one.yaml` file in this repo.
+8. The AKS cluster follows the principle of Blue-Green Deployments, so the AKS cluster will be using two namespace named green and blue. The live version is initially blue and after the deployment to AKS various testing happens in Azure devops pipeline.
 
-## Run on any Kubernetes
+9. App is firstly tested using selenium for UI functionality. (Pipeline 1)
 
-This application uses public images stored in GitHub Container Registry and Microsoft Container Registry (MCR). Once your Kubernetes cluster of choice is setup, you can deploy the full app with the below commands.
+10. The second azure Devops pipeline consist of OWASP zap security testing to find out the vulnerabilities. (Pipeline 2)
 
-This deployment deploys everything except the `ai-service` that integrates OpenAI. If you want to try integrating the OpenAI component, take a look at this article: [Deploy an application that uses OpenAI on Azure Kubernetes Service (AKS)](https://learn.microsoft.com/azure/aks/open-ai-quickstart?tabs=aoai).
+11. The third test is done using Azure Load test pipeline which gets the metrics from the test and store the results in the developer specified file. (Pipeline 3)
 
-```bash
-kubectl create ns pets
+12. After the testing phase all traffic from blue is shifted to green namespace and the first namespace can be deleted manually or in the pipeline.
 
-kubectl apply -f https://raw.githubusercontent.com/Azure-Samples/aks-store-demo/main/aks-store-all-in-one.yaml -n pets
-```
+13. Of course, at each stage a developer need to take manual look at what might be wrong if any stage comes up with any issue either in testing or deployment
 
-## Run the app locally
+14. IAC terraform file are later extracted using aztfexport tool and the configuration files are stored in HCP cloud for redeployment in case of DR.
 
-The application is designed to be [run in an AKS cluster](#run-the-app-on-aks), but can also be run locally using Docker Compose.
+15. For the purpose of cost saving and efficiency, I made an executable file from poweshell using PS2EXE which runs using task scheduler in windows at morning 9:00 and 22:00 to start and stop the AKS cluster
 
-> [!TIP]
-> You must have [Docker Desktop](https://www.docker.com/products/docker-desktop) installed to run this app locally. If you do not have it installed locally, you can try opening this repo in a [GitHub Codespace instead](#run-the-app-with-github-codespaces)
+16. I also did the same in Linux VM for redundancy if I case my personal laptop is offline. I used cronjobs using scripts for this. The same VM is used as the agent for the deployment in Azure pipelines. The VM is using the is using autoshut down feature which unfortunately is not present in AKS at the moment.
 
-To run this app locally:
+17. The AKS cluster is using autoscale feature which can use upto five nodes and can be configured to use as low as 0 nodes when the load is low.
 
-Clone the repo to your development computer and navigate to the directory:
+18. The observability and monitoring of the project is done using Prometheus and Grafana which are deployed using helm chart deployment feature. The alerts, health and dashboards of AKS are configured for continuous visibility.
 
-```console
-git clone https://github.com/Azure-Samples/aks-store-demo.git
-cd aks-store-demo
-```
+This only shows the structure that needs to be followed but not a step by step detailed tutorial.
 
-Configure your Azure OpenAI or OpenAI API keys in [`docker-compose.yml`](./docker-compose.yml) using the environment variables in the `ai-service` section:
+1. The code used in this deployment is leveraged by Microsoft code samples which can be viewed here.
 
-```yaml
-  ai-service:
-    build: src/ai-service
-    container_name: 'ai-service'
-    ...
-    environment:
-      - USE_AZURE_OPENAI=True # set to False if you are not using Azure OpenAI
-      - AZURE_OPENAI_DEPLOYMENT_NAME= # required if using Azure OpenAI
-      - AZURE_OPENAI_ENDPOINT= # required if using Azure OpenAI
-      - OPENAI_API_KEY= # always required
-      - OPENAI_ORG_ID= # required if using OpenAI
-    ...
-```
+2. Website used VUE as JavaScript framework and used MongoDB and RabbitMQ as the backend storage. Service bus is also additionally added. The code samples have lot of other features which are not deployed in the deployment.
 
-Alternatively, if you do not have access to Azure OpenAI or OpenAI API keys, you can run the app without the `ai-service` by commenting out the `ai-service` section in [`docker-compose.yml`](./docker-compose.yml). For example:
+3. The first step will be to clone the deployment in your own repository and working from there.
 
-```yaml
-#  ai-service:
-#    build: src/ai-service
-#    container_name: 'ai-service'
-...
-#    networks:
-#      - backend_services
-```
+4. Firstly, we will be manually deploying the resources and then if everything works correctly, we will be using automation. Resources I will be deploying using azure cli are AKS cluster, service bus and ACR. Full deployment can be viewed here with steps. After following the step-by-step tutorial for MS learn AKS app, you can come back here for next steps.
 
-Start the app using `docker compose`. For example:
+5. Next step is to docker compose using the file named docker-compose-quickstart.yml.
 
-```bash
-docker compose up
-```
+6. After checking locally that the app works as intended, we are going to push the images to the Azure container registry.
 
-To stop the app, you can hit the `CTRL+C` key combination in the terminal window where the app is running.
+7. For the step above we used the command docker tag and then docker push citing the name of the container registry. Like this
 
-## Run the app with GitHub Codespaces
+docker tag rabbitmq:3.13.2-management-alpine acr777aditya.azurecr.io/rabbitmq:3.13.2-management-alpine
 
-This repo also includes [DevContainer configuration](./.devcontainer/devcontainer.json), so you can open the repo using [GitHub Codespaces](https://docs.github.com/en/codespaces/overview). This will allow you to run the app in a container in the cloud, without having to install Docker on your local machine. When the Codespace is created, you can run the app using the same instructions as above.
+docker push acr777aditya.azurecr.io/rabbitmq:3.13.2-management-alpine
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=648726487)
+8. After the images show up in the ACR, we will be using the manifest file to deploy the pods using kubectl command. Kubectl can be installed like this. I used the file aks-store-quickstart.yml for this deployment.
 
-## Deploy the app to Azure using Azure Developer CLI
+9. The site should be working fine. Check if the pods are running fine( kubectl get pods) and check the ip address of the front store pod to access it(kubectl get service store-front –watch)
 
-See the [Azure Developer CLI](./docs/azd.md) documentation for instructions on how to quickly deploy the app to Azure.
+10. Also for the testing purpose use the service bus password in the yaml manifest to first test if the order can be seen after the purchasing the service bus queue.
 
-## Additional Resources
+11. The environment variable for the az login needs to stores as a secret in github secrets section for the actions to work
 
-- AKS Documentation. https://learn.microsoft.com/azure/aks
-- Kubernetes Learning Path. https://azure.microsoft.com/resources/kubernetes-learning-path 
+12. Now the automation can be started using GitHub actions and the first work flow to build the images and push them to azure acr can be done(please check the GitHub workflow folder for yml).
+
+13. Then GitHub action for deployment to the AKS cluster needs to be done and at last step the trigger for Azure pipeline needs to be added. The workflow files will mostly be using the az cli commands.
+
+14. Azure Devops organization accounts need to be created if not already present. The azure pipelines self-hosted agent is configured for the windows using the step mentioned here.
+
+15. First pipeline is triggered from the completion of the 2nd GitHub action and the selenium UI test is added in the pipeline
+
+16. Second pipeline is triggered by the completion the first pipeline and it does the OWASP zap security plugins in Azure Devops
+
+17. Third pipeline triggered by the second use azure load test and the testing phase can be concluded here.
+
+18. To now use Prometheus and Grafana for monitoring they first needs to be deployed in an environment, and for this we will deploy them in a different namespace in the same cluster. Using helm, we deployed it like this.
+
+19. The alerting is configured for the app store namespace and can alert when load limit(set to 80%) is surpassed in the logs. Autoscaling is also configured in the AKS cluster with the minimum of 1 and 4 nodes respectively.
+
+20. After all the infrastructure us configured I used aztfexport utility to get the terraform files for the deployment. I can use these to quickly redeploy the infrastructure in case to a disaster.
+
+21. 1. Couldn’t find anything good which is efficient as well as secure to automate the start and stopping of an AKS cluster so I made a simple script where I logged in using az login and used az aks stop command to stop the nodes. I then used PS2EXE to change into executable. Task secduler(win. Feature) is used to automate this on schedule.
