@@ -1,9 +1,6 @@
 #This is not a step-by-step deployment. Project is still improving and lot of new features such as agro rollout, more testing piplelines will be integrated soon and some features will be removed. If the site is down that means that i might be working on it. You are welcome to checkout the github repo.
 
-LINK TO GITHUB: https://github.com/mehtaaditya/AKS-Full-stack-architecture
-
-LINK TO SITE: store-front(http for now)
-
+LINK TO SITE: [(http://devops.adityacloud.online/)](http://devops.adityacloud.online/)
 This site leverages all important Devops tools needed to accomplish a full stack deployment from coding to containerization, testing, deployment and monitoring. The project follows the principle of CI/CD, continuous testing, continuous monitoring and Finops principle
 
 Services extensively used are Azure Kubernetes cluster, Azure service bus, Docker Desktop, Helm, Github Actions, Selenuim, Azure load test, Azure key vault , Azure Devops , Azure VM, Prometheus, Grafana and more.
